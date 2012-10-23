@@ -34,15 +34,15 @@ int main()
 
       CvMemStorage * storage = cvCreateMemStorage(0);
       CvSeq * contour = 0;
-      int i = 153;
+      if((cvWaitKey(10) & 255) == 10)
+	{
+	  cvSaveImage("output.jpg",dst,0);
+	  break;
+	}
       cvFindContours(dst, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE); // odszukac drzewo
       for(;contour != 0; contour = contour->h_next)
-	{
-	  // cvDrawContours(dst,contour,CV_RGB(255,153,255),CV_RGB(255,153,255),CV_FILLED);
-	  cvDrawContours(cpy,contour,CV_RGB(255,i,0),CV_RGB(255,i,0),CV_FILLED);
-	  i += 20;
-	  i = i > 256 ? 256 : i;
-	}
+	cvDrawContours(cpy,contour,CV_RGB(255,153,0),CV_RGB(255,153,0),CV_FILLED);
+
       // cvErode(frame,frame,NULL,10);
       //cvThreshold(dst, dst, 100, 256, CV_THRESH_BINARY); // 70 x 150
       // cvDilate(frame,frame,NULL,10);
