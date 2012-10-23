@@ -36,7 +36,7 @@ int main()
       CvSeq * contour = 0;
       if((cvWaitKey(10) & 255) == 10)
 	{
-	  cvSaveImage("output.jpg",dst,0);
+	  cvSaveImage("output.jpg",frame,0);
 	  break;
 	}
       cvFindContours(dst, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE); // odszukac drzewo
