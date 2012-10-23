@@ -7,61 +7,73 @@ using namespace std;
 
 int main()
 { 
-  CvCapture* capture = cvCaptureFromCAM(CV_CAP_ANY);
+  IplImage * src = cvLoadImage("output.jpg",0);
+  IplImage * dst = cvCreateImage( cvSize( src->width/2, src->height/2 ), src->depth, src->nChannels );
+  IplImage * dst2 = cvCreateImage( cvSize( dst->width/2, dst->height/2 ), dst->depth, dst->nChannels );
+  IplImage * dst3;
 
-  IplImage * frame;
-  IplImage * dst;
-  IplImage * cpy;
-  int zm = 153;
+  int tr1 = 10;
+  int tr2 = 60;
+  int alt = 3;
+
 
   cvNamedWindow("raw",CV_WINDOW_AUTOSIZE);
-  cvCreateTrackbar("somee","raw",&zm,256,NULL);
   cvNamedWindow("fixed",CV_WINDOW_AUTOSIZE);
-  cvNamedWindow("cpy",CV_WINDOW_AUTOSIZE);
+  cvNamedWindow("fixed2",CV_WINDOW_AUTOSIZE);
+  cvNamedWindow("fixed3",CV_WINDOW_AUTOSIZE);
+  cvCreateTrackbar("tr1","fixed",&tr1,256,NULL);
+  cvCreateTrackbar("tr2","fixed",&tr2,256,NULL);
+  cvCreateTrackbar("alt","fixed",&alt,256,NULL);
 
-  while(1)
+  // cvCopy(frame,cpy);
+  // cvCvtColor(frame, dst, CV_RGB2GRAY);
+
+  cvWaitKey(0);
+
+  cvSmooth(src, src, CV_GAUSSIAN, 11, 11, 2, 2);
+  cvPyrDown(src,dst);
+  cvPyrDown(dst,dst2);
+  dst3 = cvCloneImage(dst2);
+  cvCanny(dst2, dst2, tr1, tr2, alt);
+
+  cvShowImage("raw", src);
+  cvShowImage("fixed", dst);
+  cvShowImage("fixed2", dst2);
+  cvShowImage("fixed3", dst3);
+  // cvShowImage("fixed", dst);
+  // cvShowImage("cpy", cpy);
+
+  cvWaitKey(0);
+
+  CvMemStorage * storage = cvCreateMemStorage(0);
+  CvSeq * contour = 0;
+  cvFindContours(dst2, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE); // odszukac drzewo
+  for(;contour != 0; contour = contour->h_next)
     {
-
-      frame = cvQueryFrame(capture);
-
-      dst = cvCreateImage( cvSize( frame->width, frame->height ), IPL_DEPTH_8U, 1 );
-      cpy = cvCreateImage( cvSize( frame->width, frame->height ), frame->depth, frame->nChannels );
-      cvCopy(frame,cpy);
-      cvCvtColor(frame, dst, CV_RGB2GRAY);
-
-      cvSmooth(dst, dst, CV_GAUSSIAN, 11, 11, 2, 2);
-      cvCanny(dst, dst, 10, 60, 3);
-
-      CvMemStorage * storage = cvCreateMemStorage(0);
-      CvSeq * contour = 0;
-      if((cvWaitKey(10) & 255) == 10)
-	{
-	  cvSaveImage("output.jpg",frame,0);
-	  break;
-	}
-      cvFindContours(dst, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE); // odszukac drzewo
-      for(;contour != 0; contour = contour->h_next)
-	cvDrawContours(cpy,contour,CV_RGB(255,153,0),CV_RGB(255,153,0),CV_FILLED);
-
-      // cvErode(frame,frame,NULL,10);
-      //cvThreshold(dst, dst, 100, 256, CV_THRESH_BINARY); // 70 x 150
-      // cvDilate(frame,frame,NULL,10);
-
-      cvShowImage("raw", frame);
-      cvShowImage("fixed", dst);
-      cvShowImage("cpy", cpy);
-
-      if((cvWaitKey(10) & 255) == 27)
-	break;
+      cvDrawContours(dst3,contour,CV_RGB(255,153,0),CV_RGB(255,153,0),CV_FILLED);
+      CvRect rect = cvBoundingRect(contour, 1);
+      cvRectangle(dst3, cvPoint(rect.x, rect.y), cvPoint(rect.x + rect.width, rect.y + rect.height), CV_RGB(255, 0, 0), 1);
+      cvShowImage("fixed3", dst3);
+      cvWaitKey(0);
     }
+
+  cvWaitKey(0);
+
+  // cvErode(frame,frame,NULL,10);
+  //cvThreshold(dst, dst, 100, 256, CV_THRESH_BINARY); // 70 x 150
+  // cvDilate(frame,frame,NULL,10);
 
   cvDestroyWindow("raw");
   cvDestroyWindow("fixed");
-  cvDestroyWindow("cpy");
-  cvReleaseImage(&frame);
+  cvDestroyWindow("fixed2");
+  cvDestroyWindow("fixed3");
+
+  cvReleaseImage(&src);
   cvReleaseImage(&dst);
-  cvReleaseImage(&cpy);
-  cvReleaseCapture(&capture);
+  cvReleaseImage(&dst2);
+  cvReleaseImage(&dst3);
+  // cvReleaseImage(&dst);
 
   return 0;
 }
+
