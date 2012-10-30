@@ -122,6 +122,11 @@ void contourDance(IplImage * in)
 	  cvDrawContours(colored,contour,CV_RGB(255,153,0),CV_RGB(255,153,0),CV_FILLED);
 	  cvShowImage("dance",colored);
 	  //show image & huMoment (store huMoment)
+	  CvMoments moments;
+	  CvHuMoments huMoments;
+	  cvMoments(contour,&moments);
+	  cvGetHuMoments(&moments,&huMoments);
+	  cout << huMoments.hu1 << " " << huMoments.hu2 << " " << huMoments.hu3 << endl;
 	  if((cvWaitKey(1000) & 255) == 27)
 	    {
 	      exit = true;
@@ -150,7 +155,7 @@ int main()
   cvShowImage("fix2", filtered);
 
   cvWaitKey(0);
-  contourDance(filtered);
+  // contourDance(filtered);
 
   cvDestroyWindow("src");
   cvDestroyWindow("fix1");
