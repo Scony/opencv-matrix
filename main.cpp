@@ -2,8 +2,54 @@
 #include <opencv/highgui.h>
 #include <iostream>
 #include <string>
+#include <list>
 
 using namespace std;
+
+class Digit
+{
+  int x;
+  int y;
+  int width;
+  int height;
+  CvSeq * contour;
+public:
+  Digit(int x, int y, int width, int height, CvSeq * contour)
+  {
+    this->x = x;
+    this->y = y;
+    this->width = width;
+    this->height = height;
+    this->contour = contour;
+  }
+  ~Digit() {}
+  int getTop()
+  {
+    return y;
+  }
+  int getBot()
+  {
+    return y + height;
+  }
+};
+
+class Row
+{
+  list<Digit> digits;
+  int top;
+  int bot;
+public:
+  Row(Digit digit)
+  {
+    digits.push_back(digit);
+    top = digit.getTop();
+    bot = digit.getBot();
+  }
+  ~Row()
+  {
+    digits.clear();
+  }
+};
 
 IplImage * setUp(IplImage * in)
 {
@@ -47,6 +93,7 @@ IplImage * getROI(IplImage * in)
   cvCopy(in,roi,NULL);
   cvResetImageROI(in);
   cvReleaseImage(&inCpy);
+  // cvReleaseMemStorage(&storage);
 
   return roi;
 }
@@ -70,6 +117,7 @@ IplImage * filterContours(IplImage * in)
     }
 
   cvReleaseImage(&inCpy);
+  // cvReleaseMemStorage(&storage);
 
   return out;
 }
@@ -81,16 +129,20 @@ int ** resolveMatrix(IplImage * in) //wskazniki na rozmiary
   CvMemStorage * storage = cvCreateMemStorage(0);
   CvSeq * first = 0;
   CvSeq * contour = 0;
-  int maxWidth = 0;
-  int maxHeight = 0;
+  // int maxWidth = 0;
+  // int maxHeight = 0;
   cvFindContours(inCpy, storage, &first, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+  list<Row> rows;
   for(contour = first;  contour != 0; contour = contour->h_next)
     {
       CvRect bound = cvBoundingRect(contour, 1);
-      if(bound.width > maxWidth)
-	maxWidth = bound.width;
-      if(bound.height > maxHeight)
-	maxHeight = bound.height;
+      Digit present(bound.x,bound.y,bound.width,bound.height,contour);
+      //iteracja po rowach i check
+
+      // if(bound.width > maxWidth)
+      // 	maxWidth = bound.width;
+      // if(bound.height > maxHeight)
+      // 	maxHeight = bound.height;
       cvRectangle(in,cvPoint(bound.x,bound.y),cvPoint(bound.x+bound.width,bound.y+bound.height),CV_RGB(255,255,255),1);
     }
 
@@ -101,6 +153,7 @@ int ** resolveMatrix(IplImage * in) //wskazniki na rozmiary
   //dla kazdej liczby rozwiaz jej wartosc (jak nie mozesz to -1 cala)
 
   cvReleaseImage(&inCpy);
+  // cvReleaseMemStorage(&storage);
 
   return NULL;
 }
@@ -144,7 +197,7 @@ int main()
   IplImage * rdy = setUp(img);
   IplImage * roi = getROI(rdy);
   IplImage * filtered = filterContours(roi);
-  // resolveMatrix(filtered);
+  resolveMatrix(filtered);
 
   cvNamedWindow("src",CV_WINDOW_AUTOSIZE);
   cvNamedWindow("fix1",CV_WINDOW_AUTOSIZE);
