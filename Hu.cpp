@@ -41,10 +41,22 @@ double * Hu::getHus()
   return hu;
 }
 
+double sgn(double num)
+{
+  return num == 0 ? 0 : num > 0 ? 1 : -1;
+}
+
+double abs(double x)
+{
+  return x < 0 ? -1*x : x;
+}
+
 double Hu::match(Hu in)
 {
   double result = 0.0;
   for(int i = 0; i < 7; i++)
+    // result += abs(log(hu[i])*sgn(hu[i])-log(in.hu[i])*sgn(in.hu[i]));
     result += abs(hu[i]-in.hu[i]);
+    // cout << result << "=" << hu[i] << "vs" << in.hu[i] << endl;
   return result;
 }

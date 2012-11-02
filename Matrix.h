@@ -8,9 +8,11 @@
 
 #include "Row.h"
 #include "Hu.h"
+#include "Raw.h"
 
 class Matrix
 {
+  Raw * raw;
   IplImage * matrix;
   IplImage * setUp(IplImage * in);
   IplImage * getROI(IplImage * in);
@@ -18,10 +20,11 @@ class Matrix
   int ** resolveMatrix(IplImage * in);
   void contourDance(IplImage * in);
  public:
-  Matrix(IplImage * in);
+  Matrix(IplImage * in, Raw * raw);
   ~Matrix();
   IplImage * show();
   void learn();
+  void test();
 };
 
 #endif

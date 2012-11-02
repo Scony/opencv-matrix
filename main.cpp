@@ -13,18 +13,18 @@ int main(int argc, char * argv[])
 {
   Raw raw;
 
-  // cout.setf(ios::fixed);
+  cout.setf(ios::fixed);
 
   IplImage * img = cvLoadImage("frame.jpg",1);
 
   cvNamedWindow("src",CV_WINDOW_AUTOSIZE);
 
-  Matrix mat(img);
+  Matrix mat(img,&raw);
   cvShowImage("src", mat.show());
   if(argc>1)
     mat.learn();
   else
-    ;
+    mat.test();
 
   cvWaitKey(0);
 

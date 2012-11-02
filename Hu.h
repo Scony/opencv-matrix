@@ -2,7 +2,8 @@
 #define HU_H
 
 #include <iostream>
-#include <stdlib.h>
+/* #include <math.h> */
+/* #include <stdlib.h> */
 
 class Hu
 {

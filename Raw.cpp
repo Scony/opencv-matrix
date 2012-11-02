@@ -21,9 +21,16 @@ Raw::~Raw()
   //
 }
 
-int Raw::bestMatch(Hu * digit)
+int Raw::bestMatch(Hu digit)
 {
-  int digit = 0;
+  int sln = 0;
   double result = 999;
-  return -1;
+  for(int i = 0; i < 10; i++)
+    for(list<Hu>::iterator j = digits[i].begin(); j != digits[i].end(); j++)
+      if(j->match(digit) < result)
+	{
+	  result = j->match(digit);
+	  sln = i;
+	}
+  return sln;
 }

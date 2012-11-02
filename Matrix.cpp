@@ -2,8 +2,9 @@
 
 using namespace std;
 
-Matrix::Matrix(IplImage * in)
+Matrix::Matrix(IplImage * in, Raw * raw)
 {
+  this->raw = raw;
   IplImage * seted = setUp(in);
   IplImage * roied = getROI(seted);
   matrix = filterContours(roied);
@@ -65,6 +66,39 @@ void Matrix::learn()
       in << endl;
     }
   in.close();
+}
+
+void Matrix::test()
+{
+  IplImage * cpy = cvCloneImage(matrix);
+
+  cvNamedWindow("test",CV_WINDOW_AUTOSIZE);
+
+  CvMemStorage * storage = cvCreateMemStorage(0);
+  CvSeq * contour = 0;
+  cvFindContours(cpy, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+  for(;contour != 0; contour = contour->h_next)
+    {
+      CvRect bound = cvBoundingRect(contour, 1);
+      CvMoments moments;
+      CvHuMoments huMoments;
+      cvMoments(contour,&moments);
+      cvGetHuMoments(&moments,&huMoments);
+      Hu moms(huMoments.hu1,
+	      huMoments.hu2,
+	      huMoments.hu3,
+	      huMoments.hu4,
+	      huMoments.hu5,
+	      huMoments.hu6,
+	      huMoments.hu7);
+      cout << "::" << raw->bestMatch(moms) << "::";
+      // cvRectangle(cpy,cvPoint(bound.x,bound.y),cvPoint(bound.x+bound.width,bound.y+bound.height),cvScalar(255),1);
+      cvDrawContours(cpy,contour,cvScalar(255),cvScalar(255),CV_FILLED,1);
+      cvShowImage("test", cpy);
+      cvWaitKey(0);
+    }
+
+  cvDestroyWindow("test");
 }
 
 IplImage * Matrix::setUp(IplImage * in)

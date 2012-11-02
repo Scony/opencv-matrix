@@ -12,7 +12,7 @@ class Raw
 public:
   Raw();
   ~Raw();
-  int bestMatch(Hu * digit);
+  int bestMatch(Hu digit);
 };
 
 #endif
