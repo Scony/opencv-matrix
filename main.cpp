@@ -92,36 +92,42 @@ class Raw
 public:
   Raw(string fname)
   {
-    IplImage * in = cvLoadImage(fname.c_str(),1);
+    IplImage * in = cvLoadImage(fname.c_str(),0);
     IplImage * gray = cvCreateImage( cvSize( in->width, in->height ), IPL_DEPTH_8U, 1 );
     IplImage * grayd2 = cvCreateImage( cvSize( in->width/2, in->height/2 ), IPL_DEPTH_8U, 1 );
 
-    cvCvtColor(in, gray, CV_RGB2GRAY);
-
-    cvSmooth(gray, gray, CV_GAUSSIAN, 11, 11, 2, 2);
-    cvPyrDown(gray,grayd2);
-    cvCanny(grayd2, grayd2, 10, 60, 3);
+    cvSmooth(in, in, CV_GAUSSIAN, 11, 11, 2, 2);
+    cvCanny(in, in, 20, 30, 3);
 
     storage = cvCreateMemStorage(0);
     CvSeq * contour = 0;
-    cvFindContours(grayd2, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+    cvFindContours(in, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+    for(; contour != 0; contour = contour->h_next)
+      {
+    	cvDrawContours(in,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED,5);
+    	// cvShowImage("dance",in);
+    	// cvWaitKey(0);
+      }
+    cvReleaseMemStorage(&storage);
+    storage = cvCreateMemStorage(0);
+    cvFindContours(in, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
     // for(; contour != 0; contour = contour->h_next)
     //   {
     // 	CvRect bound = cvBoundingRect(contour, 1);
-    // 	cvDrawContours(in,contour,CV_RGB(255,93,0),CV_RGB(255,93,0),CV_FILLED);
+    // 	cvDrawContours(in,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED);
     // 	cvShowImage("dance",in);
     // 	cvWaitKey(0);
     //   }
     digits[9] = contour;
     digits[0] = digits[9]->h_next;
     digits[8] = digits[0]->h_next;
-    digits[7] = digits[8]->h_next;
+    digits[1] = digits[8]->h_next;
+    digits[7] = digits[1]->h_next;
     digits[5] = digits[7]->h_next;
-    digits[1] = digits[5]->h_next;
-    digits[6] = digits[1]->h_next;
-    digits[4] = digits[6]->h_next;
+    digits[4] = digits[5]->h_next;
     digits[3] = digits[4]->h_next;
-    digits[2] = digits[3]->h_next;
+    digits[6] = digits[3]->h_next;
+    digits[2] = digits[6]->h_next;
 
     cvReleaseImage(&in);
     cvReleaseImage(&gray);
@@ -153,22 +159,31 @@ Raw raw("template.jpg");
 IplImage * setUp(IplImage * in)
 {
   IplImage * gray = cvCreateImage( cvSize( in->width, in->height ), IPL_DEPTH_8U, 1 );
-  IplImage * grayd2 = cvCreateImage( cvSize( in->width/2, in->height/2 ), IPL_DEPTH_8U, 1 );
-  IplImage * grayd4 = cvCreateImage( cvSize( in->width/4, in->height/4 ), IPL_DEPTH_8U, 1 );
+  // IplImage * grayd2 = cvCreateImage( cvSize( in->width/2, in->height/2 ), IPL_DEPTH_8U, 1 );
+  // IplImage * grayd4 = cvCreateImage( cvSize( in->width/4, in->height/4 ), IPL_DEPTH_8U, 1 );
 
   cvCvtColor(in, gray, CV_RGB2GRAY);
 
   // cvErode(gray,gray,NULL,4);
   // cvDilate(gray,gray,NULL,4);
   cvSmooth(gray, gray, CV_GAUSSIAN, 11, 11, 2, 2); //?
-  cvPyrDown(gray,grayd2);
+  // cvPyrDown(gray,gray);
   // cvPyrDown(grayd2,grayd4);
-  cvCanny(grayd2, grayd2, 10, 60, 3);
+  cvCanny(gray, gray, 20, 30, 3);
 
-  cvReleaseImage(&gray);
-  cvReleaseImage(&grayd4);
+  CvMemStorage * storage = cvCreateMemStorage(0);
+  CvSeq * contour = 0;
+  cvFindContours(gray, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+  for(;contour != 0; contour = contour->h_next)
+    {
+      cvDrawContours(gray,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED,5);
+    }
 
-  return grayd2;
+  // cvReleaseImage(&gray);
+  // cvReleaseImage(&grayd4);
+  cvReleaseMemStorage(&storage);
+
+  return gray;
 }
 
 IplImage * getROI(IplImage * in)
@@ -211,8 +226,8 @@ IplImage * filterContours(IplImage * in)
       if(bound.width > out->width*0.8 || bound.height > out->height*0.8)
 	continue;
       if(bound.width < out->width*0.8 && bound.height < out->height*0.8 &&
-	 bound.width > 10 && bound.height > 10)
-	cvDrawContours(out,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED);
+	 bound.width > 20 && bound.height > 20)
+	cvDrawContours(out,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED,5);
     }
 
   cvReleaseImage(&inCpy);
