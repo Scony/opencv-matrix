@@ -1,17 +1,18 @@
 #ifndef RAW_H
 #define RAW_H
 
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
+#include <fstream>
+#include <list>
+
+#include "Hu.h"
 
 class Raw
 {
-  CvMemStorage * storage;
-  CvSeq * digits[10];
+  std::list<Hu> digits[10];
 public:
-  Raw(std::string fname);
+  Raw();
   ~Raw();
-  int bestMatch(CvSeq * contour);
+  int bestMatch(Hu * digit);
 };
 
 #endif

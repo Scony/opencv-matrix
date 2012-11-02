@@ -9,37 +9,27 @@
 
 using namespace std;
 
-Raw raw("template.jpg");
-
-int main()
+int main(int argc, char * argv[])
 {
+  Raw raw;
+
   // cout.setf(ios::fixed);
 
-  // IplImage * img = cvLoadImage("frame.jpg",1);
-  // IplImage * rdy = setUp(img);
-  // IplImage * roi = getROI(rdy);
-  // IplImage * filtered = filterContours(roi);
-  // // resolveMatrix(filtered);
+  IplImage * img = cvLoadImage("frame.jpg",1);
 
-  // cvNamedWindow("src",CV_WINDOW_AUTOSIZE);
-  // cvNamedWindow("fix1",CV_WINDOW_AUTOSIZE);
-  // cvNamedWindow("fix2",CV_WINDOW_AUTOSIZE);
+  cvNamedWindow("src",CV_WINDOW_AUTOSIZE);
 
-  // cvShowImage("src", rdy);
-  // cvShowImage("fix1", roi);
-  // cvShowImage("fix2", filtered);
+  Matrix mat(img);
+  cvShowImage("src", mat.show());
+  if(argc>1)
+    mat.learn();
+  else
+    ;
 
-  // cvWaitKey(0);
-  // contourDance(filtered);
+  cvWaitKey(0);
 
-  // cvDestroyWindow("src");
-  // cvDestroyWindow("fix1");
-  // cvDestroyWindow("fix2");
-
-  // cvReleaseImage(&img);
-  // cvReleaseImage(&rdy);
-  // cvReleaseImage(&roi);
-  // cvReleaseImage(&filtered);
+  cvDestroyWindow("src");
+  cvReleaseImage(&img);
 
   return 0;
 }
