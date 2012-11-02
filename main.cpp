@@ -141,7 +141,7 @@ public:
   {
     double matches[10];
     for(int i = 0; i < 10; i++)
-      matches[i] = cvMatchShapes(digits[i],contour,CV_CONTOURS_MATCH_I3);
+      matches[i] = cvMatchShapes(digits[i],contour,CV_CONTOURS_MATCH_I1);
     double min = matches[0];
     int mini = 0;
     for(int i = 1; i < 10; i++)
@@ -215,7 +215,7 @@ IplImage * getROI(IplImage * in)
 IplImage * filterContours(IplImage * in)
 {
   IplImage * inCpy = cvCloneImage(in);
-  IplImage * out = cvCreateImage( cvSize( in->width, in->height ), IPL_DEPTH_8U, 1 );
+  IplImage * out = cvCloneImage(in);
 
   CvMemStorage * storage = cvCreateMemStorage(0);
   CvSeq * contour = 0;
@@ -224,10 +224,7 @@ IplImage * filterContours(IplImage * in)
     {
       CvRect bound = cvBoundingRect(contour, 1);
       if(bound.width > out->width*0.8 || bound.height > out->height*0.8)
-	continue;
-      if(bound.width < out->width*0.8 && bound.height < out->height*0.8 &&
-	 bound.width > 20 && bound.height > 20)
-	cvDrawContours(out,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED,5);
+	cvDrawContours(out,contour,cvScalar(0),cvScalar(0),CV_FILLED,15);
     }
 
   cvReleaseImage(&inCpy);
