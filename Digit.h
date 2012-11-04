@@ -1,8 +1,10 @@
 #ifndef DIGIT_H
 #define DIGIT_H
 
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
+#include <iostream>
+
+#include "Hu.h"
+#include "Raw.h"
 
 class Digit
 {
@@ -10,14 +12,16 @@ class Digit
   int y;
   int width;
   int height;
-  CvSeq * contour;
+  Hu hus;
+  Raw * raw;
 public:
-  Digit(int x, int y, int width, int height, CvSeq * contour);
+  Digit(int x, int y, int width, int height, Hu hus, Raw * raw);
   ~Digit();
   int getLeft();
   int getTop();
   int getBot();
   int getMid();
+  int resolve();
   bool operator < (Digit & other);
 };
 

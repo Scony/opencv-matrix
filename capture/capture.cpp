@@ -41,7 +41,7 @@ int main()
 	}
       cvFindContours(dst, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE); // odszukac drzewo
       for(;contour != 0; contour = contour->h_next)
-	cvDrawContours(cpy,contour,CV_RGB(255,153,0),CV_RGB(255,153,0),CV_FILLED);
+	cvDrawContours(cpy,contour,CV_RGB(0,255,255),CV_RGB(0,255,255),CV_FILLED);
 
       // cvErode(frame,frame,NULL,10);
       //cvThreshold(dst, dst, 100, 256, CV_THRESH_BINARY); // 70 x 150

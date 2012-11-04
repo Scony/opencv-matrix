@@ -24,11 +24,6 @@ void Row::insert(Digit digit)
   digits.push_back(digit);
 }
 
-int Row::size()
-{
-  return digits.size();
-}
-
 void Row::sort()
 {
   digits.sort();
@@ -37,6 +32,14 @@ void Row::sort()
 void Row::print()
 {
   for(list<Digit>::iterator i = digits.begin(); i != digits.end(); i++)
-    cout << i->getLeft() << " ";
+    if(i==digits.begin())
+      cout << i->resolve();
+    else
+      cout << " " << i->resolve();
   cout << endl;
+}
+
+bool Row::operator < (Row & other)
+{
+  return top < other.top;
 }

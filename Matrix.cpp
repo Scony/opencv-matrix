@@ -178,21 +178,29 @@ IplImage * Matrix::filterContours(IplImage * in)
   return out;
 }
 
-int ** Matrix::resolveMatrix(IplImage * in) //wskazniki na rozmiary
+void Matrix::resolve()
 {
-  IplImage * inCpy = cvCloneImage(in);
+  IplImage * cpy = cvCloneImage(matrix);
 
   CvMemStorage * storage = cvCreateMemStorage(0);
-  CvSeq * first = 0;
   CvSeq * contour = 0;
-  // int maxWidth = 0;
-  // int maxHeight = 0;
-  cvFindContours(inCpy, storage, &first, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+  cvFindContours(cpy, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
   list<Row> rows;
-  for(contour = first;  contour != 0; contour = contour->h_next)
+  for(; contour != 0; contour = contour->h_next)
     {
       CvRect bound = cvBoundingRect(contour, 1);
-      Digit present(bound.x,bound.y,bound.width,bound.height,contour);
+      CvMoments moments;
+      CvHuMoments huMoments;
+      cvMoments(contour,&moments);
+      cvGetHuMoments(&moments,&huMoments);
+      Hu moms(huMoments.hu1,
+	      huMoments.hu2,
+	      huMoments.hu3,
+	      huMoments.hu4,
+	      huMoments.hu5,
+	      huMoments.hu6,
+	      huMoments.hu7);
+      Digit present(bound.x,bound.y,bound.width,bound.height,moms,raw);
       bool neu = true;
       for(list<Row>::iterator i = rows.begin(); i != rows.end(); i++)
 	if(i->match(present))
@@ -203,62 +211,14 @@ int ** Matrix::resolveMatrix(IplImage * in) //wskazniki na rozmiary
 	  }
       if(neu)
 	rows.push_back(Row(present));
-      // if(bound.width > maxWidth)
-      // 	maxWidth = bound.width;
-      // if(bound.height > maxHeight)
-      // 	maxHeight = bound.height;
-      cvRectangle(in,cvPoint(bound.x,bound.y),cvPoint(bound.x+bound.width,bound.y+bound.height),CV_RGB(255,255,255),1);
     }
+  rows.sort();
   for(list<Row>::iterator i = rows.begin(); i != rows.end(); i++)
     {
       i->sort();
       i->print();
-      cout << i->size() << endl;
     }
 
-  //dla kazdego pasa przerob cyfry w liczby na podstawie maxW... i maxH... (liczby = klasa/struktura)
-  //dla kazdej liczby rozwiaz jej wartosc (jak nie mozesz to -1 cala)
-
-  cvReleaseImage(&inCpy);
+  cvReleaseImage(&cpy);
   // cvReleaseMemStorage(&storage);
-
-  return NULL;
-}
-
-void Matrix::contourDance(IplImage * in)
-{
-  IplImage * inCpy = cvCloneImage(in);
-  IplImage * colored = cvCreateImage(cvSize(inCpy->width,inCpy->height),8,3);
-
-  cvNamedWindow("dance",CV_WINDOW_AUTOSIZE);
-
-  CvMemStorage * storage = cvCreateMemStorage(0);
-  CvSeq * firstContour = 0;
-  cvFindContours(inCpy, storage, &firstContour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
-  bool exit = false;
-  while(!exit)
-    {
-      cvSet(colored,cvScalar(0,0,0));
-      for(CvSeq * contour = firstContour; contour != 0; contour = contour->h_next)
-	{
-	  cvDrawContours(colored,contour,CV_RGB(255,153,0),CV_RGB(255,153,0),CV_FILLED);
-	  cvShowImage("dance",colored);
-	  //show image & huMoment (store huMoment)
-	  CvMoments moments;
-	  CvHuMoments huMoments;
-	  cvMoments(contour,&moments);
-	  cvGetHuMoments(&moments,&huMoments);
-	  cout << huMoments.hu1 << " " << huMoments.hu2 << " " << huMoments.hu3 <<
-	    " " << huMoments.hu4 << " " << huMoments.hu5 << " " << huMoments.hu6 <<
-	    " " << huMoments.hu7 << "//" << cvMatchShapes(firstContour,contour,CV_CONTOURS_MATCH_I1) << "::" << // raw.bestMatch(contour) << 
-	    endl;
-	  if((cvWaitKey(1000) & 255) == 27)
-	    {
-	      exit = true;
-	      break;
-	    }
-	}
-    }
-
-  cvDestroyWindow("dance");
 }

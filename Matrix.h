@@ -17,14 +17,13 @@ class Matrix
   IplImage * setUp(IplImage * in);
   IplImage * getROI(IplImage * in);
   IplImage * filterContours(IplImage * in);
-  int ** resolveMatrix(IplImage * in);
-  void contourDance(IplImage * in);
  public:
   Matrix(IplImage * in, Raw * raw);
   ~Matrix();
   IplImage * show();
   void learn();
   void test();
+  void resolve();
 };
 
 #endif

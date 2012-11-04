@@ -2,6 +2,13 @@
 
 using namespace std;
 
+Hu::Hu()
+{
+  for(int i = 0; i < 7; i++)
+    hu[i] = 0;
+  digit = 0;
+}
+
 Hu::Hu(double h1, double h2, double h3, double h4, double h5, double h6, double h7)
 {
   hu[0] = h1;

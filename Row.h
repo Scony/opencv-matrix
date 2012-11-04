@@ -15,9 +15,9 @@ public:
   ~Row();
   bool match(Digit digit);
   void insert(Digit digit);
-  int size();
   void sort();
   void print();
+  bool operator < (Row & other);
 };
 
 #endif
