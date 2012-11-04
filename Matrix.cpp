@@ -46,13 +46,14 @@ void Matrix::learn()
 		       huMoments.hu5,
 		       huMoments.hu6,
 		       huMoments.hu7));
-      // cvRectangle(cpy,cvPoint(bound.x,bound.y),cvPoint(bound.x+bound.width,bound.y+bound.height),cvScalar(255),1);
       cvDrawContours(cpy,contour,cvScalar(255),cvScalar(255),CV_FILLED,1);
       cvShowImage("learn", cpy);
       cvWaitKey(0);
     }
 
   cvDestroyWindow("learn");
+  // cvReleaseMemStorage(&storage);
+  // cvReleaseImage(&cpy);
   cout << "Type " << hus.size() << " integers:\n";
   fstream in("base",fstream::out | fstream::app);
   for(list<Hu>::iterator i = hus.begin(); i != hus.end(); i++)
@@ -68,52 +69,13 @@ void Matrix::learn()
   in.close();
 }
 
-void Matrix::test()
-{
-  IplImage * cpy = cvCloneImage(matrix);
-
-  cvNamedWindow("test",CV_WINDOW_AUTOSIZE);
-
-  CvMemStorage * storage = cvCreateMemStorage(0);
-  CvSeq * contour = 0;
-  cvFindContours(cpy, storage, &contour, sizeof(CvContour),CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
-  for(;contour != 0; contour = contour->h_next)
-    {
-      CvRect bound = cvBoundingRect(contour, 1);
-      CvMoments moments;
-      CvHuMoments huMoments;
-      cvMoments(contour,&moments);
-      cvGetHuMoments(&moments,&huMoments);
-      Hu moms(huMoments.hu1,
-	      huMoments.hu2,
-	      huMoments.hu3,
-	      huMoments.hu4,
-	      huMoments.hu5,
-	      huMoments.hu6,
-	      huMoments.hu7);
-      cout << "::" << raw->bestMatch(moms) << "::";
-      // cvRectangle(cpy,cvPoint(bound.x,bound.y),cvPoint(bound.x+bound.width,bound.y+bound.height),cvScalar(255),1);
-      cvDrawContours(cpy,contour,cvScalar(255),cvScalar(255),CV_FILLED,1);
-      cvShowImage("test", cpy);
-      cvWaitKey(0);
-    }
-
-  cvDestroyWindow("test");
-}
-
 IplImage * Matrix::setUp(IplImage * in)
 {
   IplImage * gray = cvCreateImage( cvSize( in->width, in->height ), IPL_DEPTH_8U, 1 );
-  // IplImage * grayd2 = cvCreateImage( cvSize( in->width/2, in->height/2 ), IPL_DEPTH_8U, 1 );
-  // IplImage * grayd4 = cvCreateImage( cvSize( in->width/4, in->height/4 ), IPL_DEPTH_8U, 1 );
 
   cvCvtColor(in, gray, CV_RGB2GRAY);
 
-  // cvErode(gray,gray,NULL,4);
-  // cvDilate(gray,gray,NULL,4);
-  cvSmooth(gray, gray, CV_GAUSSIAN, 11, 11, 2, 2); //?
-  // cvPyrDown(gray,gray);
-  // cvPyrDown(grayd2,grayd4);
+  cvSmooth(gray, gray, CV_GAUSSIAN, 11, 11, 2, 2);
   cvCanny(gray, gray, 20, 30, 3);
 
   CvMemStorage * storage = cvCreateMemStorage(0);
@@ -124,8 +86,6 @@ IplImage * Matrix::setUp(IplImage * in)
       cvDrawContours(gray,contour,CV_RGB(255,255,255),CV_RGB(255,255,255),CV_FILLED,5);
     }
 
-  // cvReleaseImage(&gray);
-  // cvReleaseImage(&grayd4);
   cvReleaseMemStorage(&storage);
 
   return gray;

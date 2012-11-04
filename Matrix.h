@@ -22,7 +22,6 @@ class Matrix
   ~Matrix();
   IplImage * show();
   void learn();
-  void test();
   void resolve();
 };
 
